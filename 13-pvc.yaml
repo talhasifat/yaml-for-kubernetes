@@ -1,0 +1,23 @@
+# PERSISTENTVOLUMECLAIM (namespaced): a Pod's "I need 1Gi of disk" request.
+# Kubernetes binds this claim to the matching PV (same class, size, access mode).
+# StatefulSet 04 does this automatically with volumeClaimTemplates — this PVC is
+# for the volumes-demo Pod in 14-volumes.yaml.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: academy-pvc
+  labels:
+    app: academy
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: academy-static
+  resources:
+    requests:
+      storage: 1Gi
+# Try from this workstation:
+#   microk8s kubectl -n manifest-demo get pvc
+# Bound disk is served by volumes-demo:
+#   curl http://localhost:30085
+#   curl http://localhost:30085
+# (second curl should show an extra visit line on the PVC)

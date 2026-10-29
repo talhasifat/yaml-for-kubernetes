@@ -1,0 +1,40 @@
+# CNI / NETWORKPOLICY: Calico is MicroK8s' default CNI (Container Network Interface).
+# It gives every Pod an IP and enforces NetworkPolicy.
+#
+# Without any policy, all Pods can talk. Once a Pod is selected by a policy,
+# only the rules below are allowed (plus kube-system DNS if you add it).
+#
+# This policy is ALLOW-list style for the "web" Pods only — other apps stay open
+# so the rest of the demo keeps working.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: web-allow-http
+  labels:
+    app: web
+spec:
+  podSelector:
+    matchLabels:
+      app: web
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - ports:
+    - protocol: TCP
+      port: 80                        # any client, including curl http://localhost:30080
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: kube-system
+    ports:
+    - protocol: UDP
+      port: 53                        # CoreDNS
+    - protocol: TCP
+      port: 53
+  - {}                                # also allow general egress for nginx
+# Try from this workstation (policy allows HTTP so NodePort still works):
+#   curl http://localhost:30080
+#   microk8s kubectl -n manifest-demo get networkpolicy
+# Harder demo: add a default-deny policy and watch curl http://localhost:30080 fail.

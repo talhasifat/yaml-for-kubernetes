@@ -1,0 +1,21 @@
+# CONFIGMAP: non-secret settings stored in the cluster (key/value or files).
+# Pods can use them as env vars or as mounted files (see 14-volumes.yaml).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  labels:
+    app: academy
+data:
+  APP_COLOR: "blue"
+  APP_ENV: "classroom"
+  welcome.txt: |
+    Hello from ConfigMap.
+    This file is mounted into the volumes-demo Pod.
+  app.properties: |
+    color=blue
+    env=classroom
+# Try from this workstation (volumes-demo NodePort serves this file):
+#   curl http://localhost:30085
+# Optional cluster view:
+#   microk8s kubectl -n manifest-demo get configmap app-config -o yaml

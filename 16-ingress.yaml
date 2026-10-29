@@ -1,0 +1,36 @@
+# INGRESS: HTTP router in front of Services (needs: microk8s enable ingress).
+# Ingress class "public" is the MicroK8s nginx controller.
+# NodePort 30080 still works; Ingress is the "nice hostname" way in.
+#
+# Ingress controller listens on host port 80 (MicroK8s addon).
+# NodePort 30080 still works if you want to skip Ingress.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web
+  labels:
+    app: web
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  ingressClassName: public
+  rules:
+  - host: web.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: web
+            port:
+              number: 80
+# Try from this workstation:
+#   curl http://localhost:80
+#   curl http://127.0.0.1:80
+#   curl http://localhost:80 -H "Host: web.local"
+# If you add a hosts entry (optional):
+#   echo 127.0.0.1 web.local | sudo tee -a /etc/hosts
+#   curl http://web.local
+# Same app via NodePort (no Ingress):
+#   curl http://localhost:30080

@@ -1,0 +1,21 @@
+# JOB: runs to completion. Needs 3 successful runs, 1 Pod at a time.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: hello-job
+spec:
+  completions: 3
+  parallelism: 1
+  backoffLimit: 2         # retries before the Job is marked failed
+  template:
+    spec:
+      restartPolicy: Never   # Jobs must use Never or OnFailure
+      containers:
+      - name: worker
+        image: busybox:1.36
+        command: ["sh", "-c", "echo Job Pod $(hostname) finished at $(date)"]
+# Try from this workstation:
+#   microk8s kubectl -n manifest-demo get jobs,pods
+#   microk8s kubectl -n manifest-demo logs job/hello-job
+# Job has no NodePort (it exits). The class web app is still:
+#   curl http://localhost:30080

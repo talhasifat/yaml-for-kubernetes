@@ -1,0 +1,16 @@
+# SERVICE: a stable address in front of the "web" Pods (found by label).
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+spec:
+  type: NodePort          # ClusterIP (default) | NodePort | LoadBalancer
+  selector:
+    app: web              # sends traffic to Pods with this label
+  ports:
+  - port: 80              # the Service's own port
+    targetPort: 80        # the container's port
+    nodePort: 30080       # opens this port on the node (30000-32767)
+# Try from this workstation (browser or curl):
+#   curl http://localhost:30080
+#   curl http://127.0.0.1:30080

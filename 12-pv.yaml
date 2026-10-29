@@ -1,0 +1,27 @@
+# PERSISTENTVOLUME (cluster-scoped): a real disk the admin prepared on the node.
+# Students usually do NOT create PVs by hand — a StorageClass does it. This file
+# exists so you can show the difference between static and dynamic provisioning.
+#
+# Directory is created by prep-env.sh:
+#   /var/snap/microk8s/common/academy-storage/pv1
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: academy-pv-1gi
+  labels:
+    app: academy
+    disk: pv1
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+  - ReadWriteOnce                 # one node at a time (typical for hostPath)
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: academy-static
+  hostPath:
+    path: /var/snap/microk8s/common/academy-storage/pv1
+    type: DirectoryOrCreate
+# Try from this workstation:
+#   microk8s kubectl get pv
+# This PV backs volumes-demo — open the app:
+#   curl http://localhost:30085

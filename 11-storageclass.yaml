@@ -1,0 +1,23 @@
+# STORAGECLASS: the "how" of disks. A PVC asks for size; the class picks the plugin.
+#
+# microk8s-hostpath is created by:  microk8s enable hostpath-storage
+# It is usually already the default class (StatefulSet volumeClaimTemplates use it).
+#
+# academy-static has NO provisioner. It is only a matching name for the hand-made
+# PersistentVolume in 12-pv.yaml (static / manual provisioning demo).
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: academy-static
+  labels:
+    app: academy
+provisioner: kubernetes.io/no-provisioner   # we create the PV ourselves
+reclaimPolicy: Retain                       # keep the files when the PVC is deleted
+volumeBindingMode: Immediate
+allowVolumeExpansion: false
+# Try from this workstation:
+#   microk8s kubectl get sc
+# StatefulSet disks use microk8s-hostpath — open the app:
+#   curl http://localhost:30083
+# Static class academy-static is used by volumes-demo:
+#   curl http://localhost:30085

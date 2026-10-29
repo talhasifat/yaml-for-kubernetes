@@ -1,0 +1,33 @@
+# DEPLOYMENT: keeps 3 identical Pods running, replaces failed ones, does rolling updates.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  labels:
+    app: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web            # must match the Pod labels in the template below
+  template:               # <- a Pod description goes here
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.27
+        ports:
+        - containerPort: 80
+        command: ["sh", "-c", "echo '<h1>web deployment</h1>' > /usr/share/nginx/html/index.html && exec nginx -g 'daemon off;'"]
+        resources:
+          requests: {cpu: 50m, memory: 64Mi}
+          limits: {cpu: 200m, memory: 128Mi}
+# Try from this workstation (needs 03-service.yaml NodePort 30080):
+#   curl http://localhost:30080
+#   microk8s kubectl -n manifest-demo set image deployment/web nginx=nginx:1.27-alpine
+#   microk8s kubectl -n manifest-demo rollout status deployment/web
+#   curl http://localhost:30080
+#   microk8s kubectl -n manifest-demo rollout undo deployment/web
+#   curl http://localhost:30080
