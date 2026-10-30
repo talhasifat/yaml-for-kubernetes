@@ -2,32 +2,37 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: web
+  name: talha-fittrack-deployment
+  namespace: fitness-dev
   labels:
-    app: web
+    app: fittrack
+    environment:dev
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
-      app: web            # must match the Pod labels in the template below
+      app: fittrack           # must match the Pod labels in the template below
   template:               # <- a Pod description goes here
     metadata:
       labels:
-        app: web
+        app: fittrack
+        environment: dev
     spec:
       containers:
       - name: nginx
         image: nginx:1.27
         ports:
-        - containerPort: 80
-        command: ["sh", "-c", "echo '<h1>web deployment</h1>' > /usr/share/nginx/html/index.html && exec nginx -g 'daemon off;'"]
+        - containerPort: 8016
         resources:
-          requests: {cpu: 50m, memory: 64Mi}
-          limits: {cpu: 200m, memory: 128Mi}
-# Try from this workstation (needs 03-service.yaml NodePort 30080):
-#   curl http://localhost:30080
-#   microk8s kubectl -n manifest-demo set image deployment/web nginx=nginx:1.27-alpine
-#   microk8s kubectl -n manifest-demo rollout status deployment/web
-#   curl http://localhost:30080
-#   microk8s kubectl -n manifest-demo rollout undo deployment/web
-#   curl http://localhost:30080
+          requests:
+            cpu: "50m"
+            memory: "64Mi"
+          limits:
+            cpu: "200m"
+            memory: "128Mi"
+        command: ["sh", "-c"]
+        args:
+        - |
+          sed -i 's/listen\(.*\)80;/listen\18016;/' /etc/nginx/conf.d/default.conf &&
+          echo "<h1>talha-fittrack-deployment - $(hostname)</h1>" > /usr/share/nginx/html/index.html &&
+          exec nginx -g 'daemon off;'
